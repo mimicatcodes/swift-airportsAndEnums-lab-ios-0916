@@ -44,6 +44,19 @@ class ViewController: UIViewController {
     var feltTemp: FeltTemp = .none
     var windDirection: WindDirection = .V
     var weatherCondition: WeatherCondition = .none
+    var airportCode: AirportCode? {
+        didSet {
+            if let airportCode = airportCode {
+                airportStatus = airportDictionary?[airportCode.rawValue] as? AirportStatus
+            }
+                    }
+//        Expand the declaration of the airportCode property to include a didSet property observer. Use the other properties in the class as a reference.
+//        Inside the didSet property observer, assign a value to the airportStatus property. You can get the value by accessing airportDictionary. Use the raw value of airportCode as the key.
+//        Hint: Enums come with a .rawValue property.
+//        Hint: You will need to downcast to AirportStatus when accessing the status from the dictionary.
+//        Build and run ⌘ + R the application. You should see a big control tower, a pretty moon, and a Delta airplane.
+//
+    }
     
     // Airport Status Dictionary
     var airportDictionary: NSDictionary? {
@@ -51,8 +64,9 @@ class ViewController: UIViewController {
             if let airportDict = airportDictionary {
                 let sortedKeys = (airportDict.allKeys as! [String]).sorted(by: <)
                 if let code = sortedKeys.first {
-                    
+                    airportCode = AirportCode(rawValue: code)!
                 }
+                
             }
         }
     }
@@ -75,7 +89,7 @@ class ViewController: UIViewController {
         
         setUpView()
         airportDictionary = AirportStatus.getTestDataDictionary()
-        
+        print(airportCode)
     }
 }
 
@@ -90,7 +104,25 @@ extension ViewController {
     }
     
     // Airport Code Enum
-
+    enum AirportCode: String {
+        case ATL, DFW, JFK, LAX, ORD
+        
+        mutating func next(){
+            switch self {
+            case .ATL :
+                self = .DFW
+            case .DFW :
+                self = .JFK
+            case .JFK :
+                self = .LAX
+            case .LAX :
+                self = .ORD
+            case .ORD :
+                self = .ATL
+            }
+        }
+    }
+    
     
     // Weather Condition Enum
     enum WeatherCondition: String {
@@ -269,7 +301,7 @@ extension ViewController {
     // Change status for view
     func changeStatusWithAnimation() {
         if statusReceived {
-            
+            airportCode?.next()
             UIView.transition(with: view, duration: 0.5, options: .transitionFlipFromRight, animations: nil, completion: nil)
         }
     }
